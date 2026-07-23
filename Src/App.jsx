@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   MapPin, Plus, Trash2, Copy, Check, ChevronRight,
   Building2, Users, FileText, Zap,
-  ShieldAlert, MessageSquare, RotateCcw, HeartPulse, Camera, Printer, DoorOpen, Siren
+  ShieldAlert, MessageSquare, RotateCcw, HeartPulse, Camera, Printer
 } from "lucide-react";
 
 /* ---------------------------------- Team21 Training & Recovery tokens ---------------------------------- */
