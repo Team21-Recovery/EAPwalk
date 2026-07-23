@@ -912,6 +912,65 @@ function WrapView({ org, setOrg, venues }) {
   );
 }
 
+/* ------------------------------------- Password Gate -------------------------------------- */
+/* Simple front-door check so casual visitors can't stumble into the tool. Not high-security —
+   anyone who views the page source can find the password — but enough to keep this restricted
+   to people you've shared it with. Change the password by editing the line below. */
+
+const APP_PASSWORD = "JobethBuckley";
+const AUTH_STORAGE_KEY = "team21_eap_authed";
+
+function PasswordGate({ children }) {
+  const [authed, setAuthed] = useState(() => {
+    try { return localStorage.getItem(AUTH_STORAGE_KEY) === "yes"; } catch (e) { return false; }
+  });
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(false);
+
+  if (authed) return children;
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (input === APP_PASSWORD) {
+      setAuthed(true);
+      setError(false);
+      try { localStorage.setItem(AUTH_STORAGE_KEY, "yes"); } catch (e) {}
+    } else {
+      setError(true);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: C.bgDark, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, sans-serif", padding: 20 }}>
+      <style>{FONT_IMPORT}</style>
+      <form onSubmit={submit} style={{ width: "100%", maxWidth: 340, background: C.bgCard, border: `1px solid ${C.bgCardBorder}`, borderRadius: 16, padding: "32px 24px", textAlign: "center", boxSizing: "border-box" }}>
+        <img src={TRI_LOGO} alt="" style={{ height: 38, marginBottom: 22 }} />
+        <div style={{ fontFamily: "Oswald, sans-serif", fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", color: C.gray, marginBottom: 16 }}>
+          Staff Access Only
+        </div>
+        <input
+          type="password"
+          autoFocus
+          value={input}
+          onChange={(e) => { setInput(e.target.value); setError(false); }}
+          placeholder="Password"
+          style={{ ...inputStyle, textAlign: "center", marginBottom: error ? 8 : 16 }}
+        />
+        {error && (
+          <div style={{ color: "#E6685C", fontSize: 12.5, marginBottom: 14, fontFamily: "Inter, sans-serif" }}>
+            Incorrect password — try again.
+          </div>
+        )}
+        <button type="submit" style={{
+          width: "100%", padding: "12px 0", borderRadius: 10, border: "none", cursor: "pointer",
+          background: C.primary, color: "#0D0D0D", fontFamily: "Oswald, sans-serif", fontWeight: 700,
+          fontSize: 14, letterSpacing: "0.04em", textTransform: "uppercase",
+        }}>Enter</button>
+      </form>
+    </div>
+  );
+}
+
 /* ---------------------------------------- App -------------------------------------------- */
 
 const TABS = [
@@ -921,7 +980,7 @@ const TABS = [
   { key: "wrap", label: "Finish", icon: Zap },
 ];
 
-export default function App() {
+function AppInner() {
   const [org, setOrg] = useState(emptyOrg);
   const [venues, setVenues] = useState([newVenue(1)]);
   const [tab, setTab] = useState("setup");
@@ -1008,5 +1067,13 @@ export default function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <PasswordGate>
+      <AppInner />
+    </PasswordGate>
   );
 }
